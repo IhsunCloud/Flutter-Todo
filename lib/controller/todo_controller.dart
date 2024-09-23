@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
-import '../models/todo.dart';
+
+import '../models/todo_model.dart';
 
 class TodoController extends GetxController {
   var todos = <Todo>[].obs;
