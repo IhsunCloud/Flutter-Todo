@@ -1,68 +1,74 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const Kernel());
-}
+import 'package:get/get.dart';
+
+import 'controller/todo_controller.dart';
 
 class Kernel extends StatelessWidget {
-  const Kernel({super.key});
+  final TodoController todoController = Get.put(TodoController());
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Todo App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  Kernel({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: const Text('Todo App with GetX'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: TextEditingController(),
+                    decoration:
+                        const InputDecoration(hintText: 'Enter new todo'),
+                    onSubmitted: (value) {
+                      todoController.addTodo(value);
+                    },
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () {
+                    todoController.addTodo('New Task');
+                  },
+                ),
+              ],
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+          ),
+          Expanded(
+            child: Obx(() {
+              return ListView.builder(
+                itemCount: todoController.todos.length,
+                itemBuilder: (context, index) {
+                  final todo = todoController.todos[index];
+                  return ListTile(
+                    title: Text(
+                      todo.title,
+                      style: TextStyle(
+                        decoration:
+                            todo.isDone ? TextDecoration.lineThrough : null,
+                      ),
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () {
+                        todoController.deleteTodo(index);
+                      },
+                    ),
+                    onTap: () {
+                      todoController.toggleTodoStatus(index);
+                    },
+                  );
+                },
+              );
+            }),
+          ),
+        ],
       ),
     );
   }
